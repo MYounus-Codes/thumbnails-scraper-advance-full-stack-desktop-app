@@ -15,6 +15,8 @@ The app is built with Tkinter and CustomTkinter and is designed for a focused sc
 
 ## Screenshot
 
+![Thumbnail Scraper Studio screenshot](assets/app-screenshot.png)
+
 The current UI uses a dark desktop layout with a settings panel on the left and a live progress panel on the right.
 
 ## Requirements
