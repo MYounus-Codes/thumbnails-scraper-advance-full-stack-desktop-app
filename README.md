@@ -96,3 +96,18 @@ The packaged app will be created in `dist/ThumbnailScraper.exe`. The spec file u
 - `scraper.py` - scraping and download logic
 - `playwright_runtime_hook.py` - runtime support for packaged builds
 - `ThumbnailScraper.spec` - PyInstaller spec for Windows packaging
+
+## Result screen (example output)
+
+Below is an example of how the app presents results and what the exported CSV looks like. The app displays the results table during the run and saves the final output to `video_data.csv` inside your chosen output folder.
+
+![Result screen](assets/app-screenshot.png)
+
+Sample `video_data.csv` contents (CSV header + example row):
+
+```csv
+index,title,video_url,thumbnail_url,thumbnail_file
+1,"Best AI Tools 2026","https://www.youtube.com/watch?v=EXAMPLE","https://i.ytimg.com/vi/EXAMPLE/maxresdefault.jpg","thumbnails/1_EXAMPLE.jpg"
+```
+
+Open the CSV in Excel, LibreOffice, or any text editor to review the collected metadata. The `thumbnails/` folder contains the downloaded image files referenced in the CSV.
