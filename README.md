@@ -101,7 +101,7 @@ The packaged app will be created in `dist/ThumbnailScraper.exe`. The spec file u
 
 Below is an example of how the app presents results and what the exported CSV looks like. The app displays the results table during the run and saves the final output to `video_data.csv` inside your chosen output folder.
 
-![Result screen](assets/result-screen.png)
+![Result screen](assets/results-screen.png)
 
 Sample `video_data.csv` contents (CSV header + example row):
 
