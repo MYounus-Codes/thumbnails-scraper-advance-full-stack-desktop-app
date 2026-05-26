@@ -1,39 +1,44 @@
-# Thumbnail Generator Model Data
+# Thumbnail Scraper Studio
 
-Scrapes YouTube search results, collects thumbnail URLs, downloads the images, and saves the captured data to CSV.
+This project now ships as a desktop application with a premium dark UI built on Tkinter + CustomTkinter. It lets you enter a query, choose an output folder, view the live browser preview and results table, and stop the run while keeping partial results.
 
 ## Requirements
 
 - Python 3.12+
 - Playwright installed with Chromium available
 
-If you are setting this up for the first time, install the project dependencies and browser binaries:
+Install the app dependencies and browser binaries:
 
 ```bash
 pip install -e .
 playwright install chromium
 ```
 
-## Run
+## Run the app
 
 ```bash
 python main.py
 ```
 
-The script will prompt for:
+The app includes:
 
-- the search query
-- the number of results to collect
+- query input
+- results count input
+- output folder picker
+- headless browser toggle
+- live browser preview while scraping
+- live progress, verification, and activity log
+- results table that fills after the scrape finishes
+- Stop button that saves partial data
 
-If you press Enter without typing a query, it uses `best ai tools`.
-If you enter an invalid result count, it falls back to `20`.
+The scraper uses backend defaults for timing, runs a verification pass before downloading to confirm the final count, and falls back to multiple thumbnail URL candidates to reduce download failures.
 
 ## Output
 
-The script writes files into `data/`:
+The app saves these items into the folder you choose:
 
-- `data/video_data.csv` contains the collected rows
-- `data/thumbnails/` contains the downloaded thumbnail images
+- `video_data.csv`
+- `thumbnails/`
 
 Each CSV row includes:
 
@@ -42,3 +47,14 @@ Each CSV row includes:
 - video URL
 - thumbnail URL
 - downloaded thumbnail file path
+
+## Make it a standalone Windows app
+
+If you want an icon you can launch outside VS Code, package the app into an executable and create a desktop shortcut to it.
+
+```bash
+pip install pyinstaller
+pyinstaller ThumbnailScraper.spec
+```
+
+The EXE will be in `dist/ThumbnailScraper.exe`. Create a desktop shortcut to that file and you can launch the app directly from the desktop without opening VS Code.
