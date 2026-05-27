@@ -1,33 +1,37 @@
 # Thumbnail Scraper Studio
 
-Thumbnail Scraper Studio is a Windows desktop app for collecting YouTube video thumbnails with a live browser preview, live progress tracking, and partial-result recovery when a run is stopped early.
+A Windows desktop app that searches YouTube, collects video thumbnails, and exports everything to CSV — with a live browser preview and real-time progress tracking while it runs.
 
-## Overview
+![App screenshot](assets/app-screenshot.png)
 
-The app is built with Tkinter and CustomTkinter and is designed for a focused scraping workflow:
+---
 
-- search a YouTube query
-- choose how many results to collect
-- choose an output folder
-- watch the browser preview while scraping runs
-- monitor download, verification, and failure status in real time
-- stop the run without losing the data already collected
+## Why this exists
 
-## Screenshot
+The command-line scraper works fine for quick runs, but once you're collecting hundreds of thumbnails for a training dataset you want to actually *see* what's happening — which results are coming in, how many failed, whether the browser is stuck. This app adds a proper UI around the same scraping logic so you can monitor a run without staring at terminal output, and stop it mid-way without losing what's already been collected.
 
-![Thumbnail Scraper Studio screenshot](assets/app-screenshot.png)
+---
 
-The current UI uses a dark desktop layout with a settings panel on the left and a live progress panel on the right.
+## Features
+
+- Live browser preview so you can see the headless Chromium session as it scrapes
+- Real-time counters for collected, downloaded, verified, and failed results
+- Results table that populates during the run, not just at the end
+- Stop button that saves partial data instead of throwing it away
+- Output folder picker — choose where the CSV and thumbnails land
+- Packages into a standalone `.exe` via PyInstaller, no Python install required on the target machine
+
+---
 
 ## Requirements
 
 - Python 3.12 or newer
-- Playwright with Chromium installed
+- Playwright with Chromium
 - Windows 10 or Windows 11
 
-## Install
+---
 
-Create and activate a virtual environment, then install the project dependencies:
+## Setup
 
 ```bash
 python -m venv .venv
@@ -36,78 +40,81 @@ pip install -e .
 playwright install chromium
 ```
 
-## Run the app
+---
 
-Start the desktop app from the project root:
+## Run
 
 ```bash
 python main.py
 ```
 
-If you prefer, you can also launch the app through `app.py` because `main.py` simply imports and runs the application entry point.
+`main.py` is just the entry point — it imports and launches `app.py`. You can run either one directly.
 
-## What the app does
+Fill in the search query and result count in the left panel, pick an output folder, then hit **Start**. The browser preview and progress counters on the right update as the run proceeds. Hit **Stop** at any point to save what's been collected so far.
 
-- accepts a YouTube search query
-- collects the selected number of results
-- writes output to the folder you choose
-- shows a live browser preview during scraping
-- displays live progress, verification state, and failure count
-- renders the scraped results in a table
-- keeps partial data when the stop button is used
+---
 
-## Output files
+## Output
 
-The selected output folder will contain:
+Everything goes into the folder you selected:
 
-- `video_data.csv`
-- `thumbnails/`
+```
+<your output folder>/
+├── video_data.csv
+└── thumbnails/
+```
 
-Each CSV row includes:
+The CSV includes a header block with the original query and result count, then one row per video:
 
-- result number
-- title
-- video URL
-- thumbnail URL
-- downloaded thumbnail path
+| Column | Description |
+|---|---|
+| index | Position in the search results |
+| title | Video title |
+| video_url | YouTube watch URL |
+| thumbnail_url | Original CDN URL |
+| thumbnail_file | Local path to the downloaded image |
 
-## Build a Windows executable
+Thumbnail filenames follow the pattern `{index}_{title_slug}.jpg`. If a thumbnail fails to download, the row is still written to the CSV with an empty file path.
 
-To package the app as a standalone desktop executable, use the project spec file:
+---
+
+## Build a standalone executable
 
 ```bash
 pip install pyinstaller
 pyinstaller ThumbnailScraper.spec
 ```
 
-The packaged app will be created in `dist/ThumbnailScraper.exe`. The spec file uses the Playwright runtime hook so the frozen app can find the browser cache correctly on Windows.
+The output is `dist/ThumbnailScraper.exe`. The spec file includes a Playwright runtime hook that points the frozen app to the correct browser cache location (`%LOCALAPPDATA%\ms-playwright`) on Windows, so Chromium is found correctly without a Python environment.
+
+---
+
+## Project structure
+
+```
+.
+├── main.py                    # Entry point
+├── app.py                     # CustomTkinter UI
+├── scraper.py                 # Scraping and download logic
+├── playwright_runtime_hook.py # Browser path fix for packaged builds
+├── ThumbnailScraper.spec      # PyInstaller build config
+├── pyproject.toml
+└── assets/
+    ├── app-screenshot.png
+    └── results-screen.png
+```
+
+---
 
 ## Notes
 
-- The scraper uses built-in backend defaults for timing and result targeting.
-- A verification pass runs before downloading to confirm the final count.
-- The download logic retries multiple thumbnail URL candidates to reduce failures.
-- Playwright browsers are expected in the local Windows cache under `%LOCALAPPDATA%\ms-playwright`.
+- The scraper runs a verification pass after collection to confirm the result count before downloading starts
+- Download retries multiple thumbnail URL candidates per video to reduce failures on results with non-standard thumbnail formats
+- Playwright browsers need to be installed once on any machine running the source version (`playwright install chromium`); the packaged `.exe` uses the existing Windows cache
+- YouTube's page structure can change — if titles or thumbnails stop being collected, the selectors in `scraper.py` are the first place to check
 
-## Project Structure
+---
 
-- `main.py` - desktop entry point
-- `app.py` - CustomTkinter UI
-- `scraper.py` - scraping and download logic
-- `playwright_runtime_hook.py` - runtime support for packaged builds
-- `ThumbnailScraper.spec` - PyInstaller spec for Windows packaging
-
-## Result screen (example output)
-
-Below is an example of how the app presents results and what the exported CSV looks like. The app displays the results table during the run and saves the final output to `video_data.csv` inside your chosen output folder.
+## Result screen
 
 ![Result screen](assets/results-screen.png)
-
-Sample `video_data.csv` contents (CSV header + example row):
-
-```csv
-index,title,video_url,thumbnail_url,thumbnail_file
-1,"Best AI Tools 2026","https://www.youtube.com/watch?v=EXAMPLE","https://i.ytimg.com/vi/EXAMPLE/maxresdefault.jpg","thumbnails/1_EXAMPLE.jpg"
-```
-
-Open the CSV in Excel, LibreOffice, or any text editor to review the collected metadata. The `thumbnails/` folder contains the downloaded image files referenced in the CSV.
